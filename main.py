@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 import logging
-import os
+from os import getenv
 
+import msgs
 from telegram import Updater
 
 # Enable logging
@@ -11,20 +12,20 @@ logging.basicConfig(
         level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+msg = msgs.start(getenv('LANG', 'en'))
 
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
 def start(bot, update):
-    logger.info(update.message.chat_id)
-    bot.sendMessage(update.message.chat_id, text='Hi!')
+    bot.sendMessage(update.message.chat_id, text=msg('welcome'))
 
 
 def help(bot, update):
-    bot.sendMessage(update.message.chat_id, text='Help!')
+    bot.sendMessage(update.message.chat_id, text=msg('help'))
 
 
-def echo(bot, update):
+def listener(bot, update):
     bot.sendMessage(update.message.chat_id, text=update.message.text)
 
 
@@ -34,7 +35,7 @@ def error(bot, update, error):
 
 def main():
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(os.getenv('BOT_TOKEN', 'TOKEN_NOT_FOUND'))
+    updater = Updater(getenv('BOT_TOKEN', 'TOKEN_NOT_FOUND'))
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -44,7 +45,7 @@ def main():
     dp.addTelegramCommandHandler("help", help)
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.addTelegramMessageHandler(echo)
+    dp.addTelegramMessageHandler(listener)
 
     # log all errors
     dp.addErrorHandler(error)
@@ -59,3 +60,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

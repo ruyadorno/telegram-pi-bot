@@ -1,0 +1,11 @@
+{
+    "welcome": {
+        "en": "Hi!",
+        "pt-br": "Bom dia!"
+    },
+    "help": {
+        "en": "Available commands:\n/start\n/help",
+        "pt-br": "Comandos disponíveis:\n/start\n/help"
+    }
+}
+
