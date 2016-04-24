@@ -1,4 +1,0 @@
-scp ./*.py pi:~/telegram-pi-bot/
-scp ./*.json pi:~/telegram-pi-bot/
-scp requirements.txt pi:~/telegram-pi-bot/requirements.txt
-

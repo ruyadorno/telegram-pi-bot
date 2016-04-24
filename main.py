@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import logging
-from os import getenv
-
+import config
 import msgs
+from requests import post_json
 from telegram import Updater
 
 # Enable logging
@@ -11,18 +11,26 @@ logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.INFO)
 
+# Gather initial data to start
 logger = logging.getLogger(__name__)
-msg = msgs.start(getenv('LANG', 'en'))
+msg = msgs.start(config.get('language'))
+chats = config.get('chat_ids')
 
 
-# Define a few command handlers. These usually take the two arguments bot and
-# update. Error handlers also receive the raised TelegramError object in error.
+def simple_msg(bot, update, message):
+    if (str(update.message.chat_id) in chats):
+        bot.sendMessage(update.message.chat_id, message)
+    else:
+        bot.sendMessage(update.message.chat_id, text=msg('forbidden'))
+
+
+# Static methods
 def start(bot, update):
-    bot.sendMessage(update.message.chat_id, text=msg('welcome'))
+    simple_msg(bot, update, msg('welcome'))
 
 
 def help(bot, update):
-    bot.sendMessage(update.message.chat_id, text=msg('help'))
+    simple_msg(bot, update, msg('help') + get_webhook_names())
 
 
 def listener(bot, update):
@@ -33,18 +41,37 @@ def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
 
 
+def get_webhook_names():
+    names = '\n'
+    for webhook in config.get('webhooks'):
+        names += '/' + webhook.get('command_name') + '\n'
+    return names
+
+def get_webhook_handler(webhook):
+    def webhook_handler(bot, update):
+        post_json(logger, webhook, update)
+
+    return webhook_handler
+
+def setup_webhooks(dp):
+    for webhook in config.get('webhooks'):
+        dp.addTelegramCommandHandler(webhook.get('command_name'), get_webhook_handler(webhook))
+
+
 def main():
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(getenv('BOT_TOKEN', 'TOKEN_NOT_FOUND'))
+    updater = Updater(config.get('bot_token'))
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # on different commands - answer in Telegram
-    dp.addTelegramCommandHandler("start", start)
-    dp.addTelegramCommandHandler("help", help)
+    # Static commands
+    dp.addTelegramCommandHandler('start', start)
+    dp.addTelegramCommandHandler('help', help)
 
-    # on noncommand i.e message - echo the message on Telegram
+    setup_webhooks(dp)
+
+    # Listen to all messages
     dp.addTelegramMessageHandler(listener)
 
     # log all errors

@@ -6,6 +6,10 @@
     "help": {
         "en": "Available commands:\n/start\n/help",
         "pt-br": "Comandos disponíveis:\n/start\n/help"
+    },
+    "forbidden": {
+        "en": "Sorry, I don't talk with strangers.",
+        "pt-br": "Desculpe-me, mas não converso com estranhos."
     }
 }
 

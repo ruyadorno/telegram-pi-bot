@@ -4,6 +4,15 @@
 
 This is my personal [Telegram Bot](https://core.telegram.org/bots) to run on my [RaspberryPi 2](https://www.raspberrypi.org/products/raspberry-pi-2-model-b/) at home. It's supposed to be a proxy and an easy interface for all the home automation paraphernalia that we might end up getting in the future.
 
+### Features
+
+- Answers to only pre-configured chat rooms
+- Webhooks configured via a JSON config file
+ - Configures an endpoint to call for a given command
+ - Works great with IFTTT Maker channel
+- Basic multilingual support
+ - `en` `pt-br`
+
 ## Setup
 
 ### Hardware requirements
@@ -42,20 +51,54 @@ This is my personal [Telegram Bot](https://core.telegram.org/bots) to run on my 
 
 ## Running the bot
 
-*Config env variables*
+### Config file
 
-- `BOT_TOKEN` Unique token from Telegram to use your bot
-- `LANG` Language the bot should use [en|pt-br], defaults to `en`
+**Telegram Pi Bot** is configured through a `json` file, in which you can set your bot token and configure webhooks/commands to invoke from your bot.
+
+Here is an example of what a `config.json` file looks like:
+
+```json
+{
+    "bot_token": "<insert bot token>",
+    "chat_ids": [
+        "<insert chat id in which the bot should respond to>"
+    ],
+    "language": "<bot language>",
+    "webhooks": [
+        {
+            "command_name": "dosomething",
+            "url": "https://example.com/dosomething",
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "data": { "value1": "%s" }
+        }
+    ]
+}
+```
+
+### Locate config file
+
+The config file will try to be loaded from:
+
+- A location specified using the `TELEGRAM_PI_BOT_CONFIG` environment variable
+
+_or_
+
+- A `config.json` file placed in the same folder as the `main.py` script
 
 ### Using Circus
+
+For improved process handling:
 
 - `systemctl start circus`
 - `systemctl stop circus`
 - `systemctl reload circus`
 
-### Alternative
+### Script
 
-Just export the `BOT_TOKEN` as a environment variable and launch the bot:
+To just simply run as a Python script, just make sure your `config.json` file is accessible as previously explained, then just run:
 
 ```sh
 python main.py
