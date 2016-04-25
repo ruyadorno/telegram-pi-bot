@@ -33,10 +33,6 @@ def help(bot, update):
     simple_msg(bot, update, msg('help') + get_webhook_names())
 
 
-def listener(bot, update):
-    bot.sendMessage(update.message.chat_id, text=update.message.text)
-
-
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
 
@@ -70,9 +66,6 @@ def main():
     dp.addTelegramCommandHandler('help', help)
 
     setup_webhooks(dp)
-
-    # Listen to all messages
-    dp.addTelegramMessageHandler(listener)
 
     # log all errors
     dp.addErrorHandler(error)
