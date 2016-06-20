@@ -1,3 +1,4 @@
+import ssl
 from json import dumps, loads, JSONDecodeError
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
@@ -13,7 +14,17 @@ def _get_parsed_data(logger, req_data, msg):
                 post_data[key] = val % message
             parsed_data = dumps(post_data)
         else:
-            parsed_data = post_data % message
+            try:
+                parsed_data = post_data % message
+            except ValueError as e:
+                logger.warn(
+                    'Failed to parse string, try to escape it:' +
+                    'http://stackoverflow.com/q/8856523/151243'
+                )
+                parsed_data = post_data
+            except TypeError as e:
+                logger.warn('Could not format post data')
+                parsed_data = post_data
         parsed_data = parsed_data.encode('utf8')
 
     logger.debug(parsed_data)
@@ -23,6 +34,7 @@ def _get_parsed_data(logger, req_data, msg):
 
 def post_json(logger, req_data, msg):
     parsed_data = _get_parsed_data(logger, req_data, msg)
+    gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
 
     try:
         req = Request(
@@ -35,14 +47,14 @@ def post_json(logger, req_data, msg):
         logger.error('A webhook must have a url property')
 
     try:
-        http_res = urlopen(req)
+        http_res = urlopen(req, context=gcontext)
         res = http_res.read()
         try:
             parsed_res = loads(res.decode())
             logger.debug(parsed_res)
         except JSONDecodeError as e:
             logger.error(e)
-            parsed_res = res
+            parsed_res = { 'response': res }
     except HTTPError as e:
         logger.error(e)
         parsed_res = {}
