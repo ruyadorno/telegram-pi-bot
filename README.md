@@ -96,6 +96,10 @@ For improved process handling:
 - `systemctl stop circus`
 - `systemctl reload circus`
 
+Autostart on device boot:
+
+- `systemctl enable circus`
+
 ### Script
 
 To just simply run as a Python script, just make sure your `config.json` file is accessible as previously explained, then just run:
