@@ -12,17 +12,20 @@ This is my personal [Telegram Bot](https://core.telegram.org/bots) to run on my 
  - Works great with IFTTT Maker channel
 - Basic multilingual support
  - `en` `pt-br`
+- Runs on Python 3
 
 ## Setup
 
 ### Hardware requirements
 
-- RaspberryPi 2
-- Ethernet cable
+- RaspberryPi
 - Power cable
 - MicroSD card
+- Internet connection
 
 ### Installing things
+
+This is a guide for the complete setup on ArchLinux, if you're just intested in running the script you can jump
 
 *Base system setup*
 - [Install archlinux](https://archlinuxarm.org/platforms/armv7/broadcom/raspberry-pi-2)
@@ -42,8 +45,22 @@ This is my personal [Telegram Bot](https://core.telegram.org/bots) to run on my 
 - `sudo pacman -S python-setuptools`
 - [Get circus for process management](http://circus.readthedocs.org/en/latest/)
 - `sudo pip install circus`
-- `sudo pip install circus-web`
 - [Start circus on boot](http://circus.readthedocs.org/en/latest/for-ops/deployment/)
+
+*Finally, bot setup*
+- `sudo pip install telegram-pi-bot`
+- Configure a `~/circus.ini` file
+```
+[circus]
+
+[watcher:telegram-pi-bot]
+cmd = telegram-pi-bot
+numprocesses = 1
+
+[env]
+TELEGRAM_PI_BOT_CONFIG = /home/username/config.json
+```
+- Setup the [json config file](https://github.com/ruyadorno/telegram-pi-bot#config-file)
 
 ### Maintenance
 
@@ -102,10 +119,12 @@ Autostart on device boot:
 
 ### Script
 
+Clone this repo, then `cd` into its folder.
+
 To just simply run as a Python script, just make sure your `config.json` file is accessible as previously explained, then just run:
 
 ```sh
-python main.py
+python telegram-pi-bot
 ```
 
 ## License

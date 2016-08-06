@@ -1,7 +1,7 @@
 import ssl
 from json import dumps, loads, JSONDecodeError
 from urllib.request import urlopen, Request
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 def _get_parsed_data(logger, req_data, msg):
     parsed_data = None
@@ -57,6 +57,9 @@ def post_json(logger, req_data, msg):
             parsed_res = { 'response': res }
     except HTTPError as e:
         logger.error(e)
+        parsed_res = {}
+    except URLError as e:
+        logger.error('Address could not be reached')
         parsed_res = {}
 
     return parsed_res

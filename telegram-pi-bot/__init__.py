@@ -4,7 +4,7 @@ import logging
 import config
 import msgs
 from requests import post_json
-from telegram import Updater
+from telegram.ext import Updater, CommandHandler
 
 # Enable logging
 logging.basicConfig(
@@ -19,9 +19,9 @@ chats = config.get('chat_ids')
 
 def simple_msg(bot, update, message):
     if (str(update.message.chat_id) in chats):
-        bot.sendMessage(update.message.chat_id, message)
+        bot.sendMessage(chat_id=update.message.chat_id, text=message)
     else:
-        bot.sendMessage(update.message.chat_id, text=msg('forbidden'))
+        bot.sendMessage(chat_id=update.message.chat_id, text=msg('forbidden'))
 
 
 # Static methods
@@ -51,27 +51,34 @@ def get_webhook_handler(webhook):
 
 def setup_webhooks(dp):
     for webhook in config.get('webhooks'):
-        dp.addTelegramCommandHandler(webhook.get('command_name'), get_webhook_handler(webhook))
+        hook_handler = CommandHandler(webhook.get('command_name'), get_webhook_handler(webhook))
+        dp.add_handler(hook_handler)
 
 
 def main():
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(config.get('bot_token'))
+    updater = Updater(token=config.get('bot_token'))
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # Static commands
-    dp.addTelegramCommandHandler('start', start)
-    dp.addTelegramCommandHandler('help', help)
+    # Static command handlers
+    start_handler = CommandHandler('start', start)
+    help_handler = CommandHandler('help', help)
+
+    # setup handlers
+    dp.add_handler(start_handler)
+    dp.add_handler(help_handler)
 
     setup_webhooks(dp)
 
     # log all errors
-    dp.addErrorHandler(error)
+    dp.add_error_handler(error)
 
     # Start the Bot
     updater.start_polling()
+
+    logger.info('Bot started')
 
     # Run the bot until the you presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
