@@ -12,5 +12,9 @@ setup(
   keywords = ['telegram', 'raspberrypi', 'bot', 'python-telegram-bot'],
   install_requires=['python-telegram-bot>=5,<6'],
   classifiers = [],
+  entry_points='''
+    [console_scripts]
+    telegram-pi-bot=telegram-pi-bot.__init__:main
+  '''
 )
 
