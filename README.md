@@ -124,7 +124,7 @@ Clone this repo, then `cd` into its folder.
 To just simply run as a Python script, just make sure your `config.json` file is accessible as previously explained, then just run:
 
 ```sh
-python telegram-pi-bot
+python telegram_pi_bot
 ```
 
 ## License
