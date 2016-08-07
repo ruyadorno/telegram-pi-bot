@@ -22,7 +22,7 @@ def _get_parsed_data(logger, req_data, msg):
                     'http://stackoverflow.com/q/8856523/151243'
                 )
                 parsed_data = post_data
-            except TypeError as e:
+            except TypeError:
                 logger.warn('Could not format post data')
                 parsed_data = post_data
         parsed_data = parsed_data.encode('utf8')
