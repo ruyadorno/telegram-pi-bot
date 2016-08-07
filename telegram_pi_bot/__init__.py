@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
 import logging
-import config
-import msgs
-from requests import post_json
+
 from telegram.ext import Updater, CommandHandler
+
+from telegram_pi_bot import config
+from telegram_pi_bot import msgs
+from telegram_pi_bot.requests import post_json
 
 # Enable logging
 logging.basicConfig(
