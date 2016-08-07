@@ -17,7 +17,7 @@ setup(
     classifiers = [],
     entry_points = {
         'console_scripts': [
-            'telegram-pi-bot = telegram_pi_bot.command_line:main'
+            'telegram-pi-bot = telegram_pi_bot:main'
         ]
     }
 )
