@@ -1,0 +1,2 @@
+include telegram_pi_bot messages.json
+
