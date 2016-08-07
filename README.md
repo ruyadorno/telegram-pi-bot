@@ -2,7 +2,9 @@
 
 ## About
 
-This is my personal [Telegram Bot](https://core.telegram.org/bots) to run on my [RaspberryPi 2](https://www.raspberrypi.org/products/raspberry-pi-2-model-b/) at home. It's supposed to be a proxy and an easy interface for all the home automation paraphernalia that we might end up getting in the future.
+This is my personal [Telegram Bot](https://core.telegram.org/bots) to run on my [RaspberryPi](https://www.raspberrypi.org/products/pi-zero/) at home. It's supposed to be a proxy and an easy interface for all the home automation paraphernalia that we might end up getting in the future.
+
+The bot can also be used in any system that has Python 3 support but the setup instructions provided are focused on getting it to work on the ARM architecture running on ArchLinux.
 
 ### Features
 
@@ -12,7 +14,6 @@ This is my personal [Telegram Bot](https://core.telegram.org/bots) to run on my 
  - Works great with IFTTT Maker channel
 - Basic multilingual support
  - `en` `pt-br`
-- Runs on Python 3
 
 ## Setup
 
@@ -25,50 +26,74 @@ This is my personal [Telegram Bot](https://core.telegram.org/bots) to run on my 
 
 ### Installing things
 
-This is a guide for the complete setup on ArchLinux, if you're just intested in running the script you can jump
+This is a guide for the complete setup on ArchLinux, if you're just intested in running the script you can jump to [Process management setup](https://github.com/ruyadorno/telegram-pi-bot#process-management-setup).
 
-*Base system setup*
-- [Install archlinux](https://archlinuxarm.org/platforms/armv7/broadcom/raspberry-pi-2)
+_Remember to replace occurrences of **username** with your own user name._
+
+#### Base system setup
+
+A more complete step-by-step guide on how to set up ArchLinux on a RaspberryPi Zero is available here: https://gist.github.com/ruyadorno/08a04f5fcb37204767ce0942c9df8f91
+
+- [Install archlinux](https://archlinuxarm.org/)
 - [Add new user and change default passowrds](https://wiki.archlinux.org/index.php/users_and_groups)
 - [Setup ssh](https://wiki.archlinux.org/index.php/Secure_Shell)
 - [Setup sudo](https://wiki.archlinux.org/index.php/sudo)
-- [Setup iptables](https://wiki.archlinux.org/index.php/iptables), [easier guide here](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-using-iptables-on-ubuntu-14-04) (make sure to open ports for ssh and supervisor)
+- [Setup iptables](https://wiki.archlinux.org/index.php/iptables), [easier guide here](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-using-iptables-on-ubuntu-14-04) (make sure to open ports for ssh)
 - `systemctl enable iptables`
 - [Configure static ip address](https://wiki.archlinux.org/index.php/systemd-networkd)
 
-*Python setup*
+#### Python setup
 - Install Python: `sudo pacman -S python`
 - Install pip: `sudo pacman -S python-pip`
 
-*Process management setup*
+#### Process management setup
 - `sudo pacman -S gcc`
 - `sudo pacman -S python-setuptools`
 - [Get circus for process management](http://circus.readthedocs.org/en/latest/)
 - `sudo pip install circus`
-- [Start circus on boot](http://circus.readthedocs.org/en/latest/for-ops/deployment/)
 
-*Finally, bot setup*
-- `sudo pip install telegram-pi-bot`
-- Configure a `~/circus.ini` file
+#### Bot setup
+- Install the bot: `sudo pip install telegram-pi-bot`
+- Setup the [json config file](https://github.com/ruyadorno/telegram-pi-bot#config-file)
+- Test that the bot runs with the current config:
+ - `telegram-pi-bot /home/username/config.json`
+- CTRL+C to quit the process
+
+#### Process management config
+- Configure a `/home/username/circus.ini` file:
 ```
 [circus]
 
 [watcher:telegram-pi-bot]
-cmd = telegram-pi-bot
+cmd = telegram-pi-bot /home/username/config.json
 numprocesses = 1
-
-[env]
-TELEGRAM_PI_BOT_CONFIG = /home/username/config.json
 ```
-- Setup the [json config file](https://github.com/ruyadorno/telegram-pi-bot#config-file)
+- Configure a `/etc/systemd/system/circus.service` file for autoload on boot:
+```
+[Unit]
+Description=Circus process manager
+After=syslog.target network.target nss-lookup.target
+
+[Service]
+Type=simple
+ExecReload=/usr/bin/circusctl reload
+ExecStart=/usr/bin/circusd /home/username/circus.ini
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+```
+- Reload **systemd**: `systemctl --system daemon-reload`
+- Starts **circus** for the first time: `systemctl start circus`
+- Enable **circus** to autostart on boot: `systemctl enable circus`
+- More info on how to [Start circus on boot](http://circus.readthedocs.org/en/latest/for-ops/deployment/)
 
 ### Maintenance
 
 - `sudo pacman -Syu` Updates the system
 
-## Running the bot
-
-### Config file
+## Config file
 
 **Telegram Pi Bot** is configured through a `json` file, in which you can set your bot token and configure webhooks/commands to invoke from your bot.
 
@@ -97,13 +122,13 @@ Here is an example of what a `config.json` file looks like:
 
 ### Locate config file
 
-The config file will try to be loaded from:
+The config file will try to be loaded in the following order:
 
-- A location specified using the `TELEGRAM_PI_BOT_CONFIG` environment variable
-
-_or_
-
-- A `config.json` file placed in the same folder as the `main.py` script
+- The first argument provided:
+ - `telegram-pi-bot /home/username/config.json`
+- A location specified using the `TELEGRAM_PI_BOT_CONFIG` environment variable:
+ - `export TELEGRAM_PI_BOT_CONFIG=/home/username/config.json`
+- A file named `config.json` placed inside the `telegram_pi_bot` folder
 
 ### Using Circus
 
@@ -116,16 +141,6 @@ For improved process handling:
 Autostart on device boot:
 
 - `systemctl enable circus`
-
-### Script
-
-Clone this repo, then `cd` into its folder.
-
-To just simply run as a Python script, just make sure your `config.json` file is accessible as previously explained, then just run:
-
-```sh
-python telegram_pi_bot
-```
 
 ## License
 
