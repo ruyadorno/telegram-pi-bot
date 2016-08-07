@@ -50,7 +50,7 @@ A more complete step-by-step guide on how to set up ArchLinux on a RaspberryPi Z
 - `sudo pacman -S gcc`
 - `sudo pacman -S python-setuptools`
 - [Get circus for process management](http://circus.readthedocs.org/en/latest/)
-- `sudo pip install circus`
+ - `sudo pip install circus`
 
 #### Bot setup
 - Install the bot: `sudo pip install telegram-pi-bot`
