@@ -1,2 +1,2 @@
-include telegram_pi_bot messages.json
+include telegram_pi_bot/messages.json
 
