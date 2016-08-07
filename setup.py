@@ -11,6 +11,7 @@ setup(
     download_url = 'https://github.com/ruyadorno/telegram-pi-bot/tarball/0.2.1',
     keywords = ['telegram', 'raspberrypi', 'bot', 'python-telegram-bot'],
     install_requires=['python-telegram-bot>=5,<6'],
+    data_files=[('telegram_pi_bot', ['telegram_pi_bot/messages.json'])],
     classifiers = [],
     entry_points = {
         'console_scripts': [
