@@ -1,4 +1,4 @@
-# Telegram Pi Bot
+# Telegram Pi Bot [![PyPI](https://img.shields.io/pypi/v/telegram-pi-bot.svg)](https://pypi.python.org/pypi/telegram-pi-bot)
 
 ## About
 
